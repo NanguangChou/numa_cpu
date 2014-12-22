@@ -189,7 +189,7 @@ class MPL_Panel(MPL_Panel_base):
 ###############################################################################
 class MPL_Frame(wx.Frame):
     """MPL_Frame可以继承,并可修改,或者直接使用"""
-    def __init__(self,title="MPL_Frame Example In wxPython",size=(800,500)):
+    def __init__(self,title="Numa CPU Monitor",size=(800,500)):
         wx.Frame.__init__(self,parent=None,title = title,size=size)
 
         self.MPL = MPL_Panel_base(self)
@@ -314,8 +314,7 @@ class MPL_Frame(wx.Frame):
 
     #About对话框
     def AboutDialog(self):
-        dlg = wx.MessageDialog(self, '\twxMatPlotLib\t\nMPL_Panel_base,MPL_Panel,MPL_Frame and MPL2_Frame \n packages Used.\n Version 0.0.0 \n 2014-12-20',
-                                'About MPL_Frame and MPL_Panel', wx.OK | wx.ICON_INFORMATION)
+        dlg = wx.MessageDialog(self, '\tPackages Used, Stop Ok', wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
 
@@ -402,8 +401,7 @@ class MPL2_Frame(wx.Frame):
 
     #About对话框
     def AboutDialog(self):
-        dlg = wx.MessageDialog(self, '\twxMatPlotLib\t\nMPL_Panel_base,MPL_Panel,MPL_Frame and MPL2_Frame \n Created by Wu Xuping\n Version 1.0.0 \n 2012-02-01',
-                                'About MPL_Frame and MPL_Panel', wx.OK | wx.ICON_INFORMATION)
+        dlg = wx.MessageDialog(self, '\tStop Ok', wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
 
