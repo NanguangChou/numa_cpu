@@ -20,16 +20,18 @@ from matplotlib import pyplot
 
 import math
 
-POINTS = 100  
+POINTS        = 100  
+CPU_NUMBER    = 4
 LOG_FREQUENCE = math.log(2.4*1024*1024*1024)
 
 ######################################################################################
+
 class MPL_Panel_base(wx.Panel):
     ''' #MPL_Panel_base面板,可以继承或者创建实例'''
     def __init__(self,parent):
         wx.Panel.__init__(self,parent=parent, id=-1)
 
-        self.Figure = matplotlib.figure.Figure(figsize=(8,6))
+        self.Figure = matplotlib.figure.Figure(figsize=(4,3))
         self.axes = self.Figure.add_axes([0.1,0.1,0.8,0.8])
         self.FigureCanvas = FigureCanvas(self,-1,self.Figure)
         
@@ -57,7 +59,7 @@ class MPL_Panel_base(wx.Panel):
         
         self.bg = self.FigureCanvas.copy_from_bbox(self.axes.bbox)
         #self.xticker()
-        self.axes.set_autoscale_on(False)
+        self.axes.set_autoscale_on(True)
         
         self.xlim(0,POINTS)
         self.ylim(0,100)
@@ -189,11 +191,38 @@ class MPL_Panel(MPL_Panel_base):
 ###############################################################################
 class MPL_Frame(wx.Frame):
     """MPL_Frame可以继承,并可修改,或者直接使用"""
-    def __init__(self,title="Numa CPU Monitor",size=(800,500)):
+    def __init__(self,title="Numa CPU Monitor",size=(1400,980)):
         wx.Frame.__init__(self,parent=None,title = title,size=size)
 
-        self.MPL = MPL_Panel_base(self)
+        self.BoxSizer=wx.BoxSizer(wx.HORIZONTAL)
+        
+        #####对象表属性测试
+        '''self.MPL_ALL=[]
+        for num in range(CPU_NUMBER):
+            self.MPL_ALL += [MPL_Panel_base(self)]
+        self.BoxSizerHorizon = []
+        self.BoxSizerFigure = wx.BoxSizer(wx.VERTICAL)
 
+        box_row = int( math.ceil( math.sqrt( CPU_NUMBER ) ) )
+        box_col = int(math.sqrt(CPU_NUMBER))
+        for n in range(box_row):
+            self.BoxSizerHorizon += [wx.BoxSizer(wx.HORIZONTAL)]
+            for j in range(box_col):
+                if n*box_col+j <= CPU_NUMBER:
+                    self.BoxSizerHorizon[n].Add(self.MPL_ALL[n*box_col+j], proportion = -1, border = 2, flag = wx.ALL | wx.EXPAND)
+                    print n*box_col+j
+                    #print len(self.BoxSizerHorizon)
+            self.BoxSizerFigure.Add(self.BoxSizerHorizon[n])
+            
+        for n in range(len(self.BoxSizerHorizon)):
+            for j in range(box_col):
+                if n*box_col +j <= CPU_NUMBER:
+                    self.BoxSizerHorizon[n].Add(self.MPL_ALL[n*box_col+j], proportion = -1, border = 2, flag = wx.ALL | wx.EXPAND)
+            self.BoxSizerFigure.Add(self.BoxSizerHorizon[n])        
+
+        '''
+        self.draw_16_axes()
+        
         #创建FlexGridSizer
         self.FlexGridSizer=wx.FlexGridSizer( rows=9, cols=1, vgap=5,hgap=5)
         self.FlexGridSizer.SetFlexibleDirection(wx.BOTH)
@@ -208,10 +237,10 @@ class MPL_Frame(wx.Frame):
         self.Button2 = wx.Button(self.RightPanel,-1,"CloseButton",size=(100,40),pos=(10,10))
         self.Button2.Bind(wx.EVT_BUTTON,self.Button2Event)
 
-        self.ip_text   =wx.StaticText(self.RightPanel,-1,"Ip Server:",size=(100,-1))
-        self.ip_ctl    =wx.TextCtrl(self.RightPanel,-1,"192.168.150.46",size=(100,-1))
-        self.port_text =wx.StaticText(self.RightPanel,-1,"Server Port",size=(100,-1))
-        self.port_ctl  =wx.TextCtrl(self.RightPanel,-1,"9876",size=(100,-1))
+        self.ip_text   = wx.StaticText(self.RightPanel,-1,"Ip Server:",size=(100,-1))
+        self.ip_ctl    = wx.TextCtrl(self.RightPanel,-1,"192.168.150.46",size=(100,-1))
+        self.port_text = wx.StaticText(self.RightPanel,-1,"Server Port",size=(100,-1))
+        self.port_ctl  = wx.TextCtrl(self.RightPanel,-1,"9876",size=(100,-1))
         
         #加入Sizer中
         self.FlexGridSizer.Add(self.Button1,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
@@ -222,25 +251,27 @@ class MPL_Frame(wx.Frame):
         self.FlexGridSizer.Add(self.port_text,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
         self.FlexGridSizer.Add(self.port_ctl,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
 
-        self.RightPanel.SetSizer(self.FlexGridSizer)
         
-        self.BoxSizer=wx.BoxSizer(wx.HORIZONTAL)
-        self.BoxSizer.Add(self.MPL,proportion =-10, border = 2,flag = wx.ALL | wx.EXPAND)
-        self.BoxSizer.Add(self.RightPanel,proportion =0, border = 2,flag = wx.ALL | wx.EXPAND)
+        #self.BoxSizer.Add(self.BoxSizerFigure,proportion = -1, border = 2,flag = wx.ALL | wx.EXPAND)
+        self.BoxSizer.Add(self.BoxSizer_hh,proportion = -1, border = 2,flag = wx.ALL | wx.EXPAND)
+        self.BoxSizer.Add(self.RightPanel,proportion = 0, border = 2,flag = wx.ALL | wx.EXPAND)
         
-        self.SetSizer(self.BoxSizer)	
+        self.SetSizer(self.BoxSizer)
+        self.RightPanel.SetSizer(self.FlexGridSizer)	
+
+        #连接判断
+        self.start_button_click = False
+        self.stop_button_click  = False
+        self.time_id=wx.NewId()
+        
+        wx.EVT_TIMER(self.MPL1, self.time_id, self.draw_canvas)
+        self.t = wx.Timer(self.MPL1,self.time_id)
 
         #状态栏
         self.StatusBar()
 
         #MPL_Frame界面居中显示
-        self.Centre(wx.BOTH)
-
-        self.start_button_click = False
-        self.stop_button_click  = False
-        self.time_id=wx.NewId()
-        wx.EVT_TIMER(self.MPL, self.time_id, self.draw_canvas)
-        self.t = wx.Timer(self.MPL,self.time_id)  
+        self.Centre(wx.BOTH)  
 
     #按钮事件,用于测试
     def Button1Event(self,event):
@@ -316,7 +347,55 @@ class MPL_Frame(wx.Frame):
     def AboutDialog(self):
         dlg = wx.MessageDialog(self, '\tPackages Used, Stop Ok', wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
-        dlg.Destroy()
+        dlg.Destroy()\
+
+    #生成16个监控图像
+    def draw_16_axes(self):
+        self.MPL1 = MPL_Panel_base(self)
+        self.MPL2 = MPL_Panel_base(self)
+        self.MPL3 = MPL_Panel_base(self)
+        self.MPL4 = MPL_Panel_base(self)
+        self.MPL5 = MPL_Panel_base(self)
+        self.MPL6 = MPL_Panel_base(self)
+        self.MPL7 = MPL_Panel_base(self)
+        self.MPL8 = MPL_Panel_base(self)
+        self.MPL9 = MPL_Panel_base(self)
+        self.MPL10 = MPL_Panel_base(self)
+        self.MPL11 = MPL_Panel_base(self)
+        self.MPL12 = MPL_Panel_base(self)
+        self.MPL13 = MPL_Panel_base(self)
+        self.MPL14 = MPL_Panel_base(self)
+        self.MPL15 = MPL_Panel_base(self)
+        self.MPL16 = MPL_Panel_base(self)
+
+        ##加入sizer
+        self.BoxSizer1 = wx.BoxSizer( wx.HORIZONTAL )
+        self.BoxSizer2 = wx.BoxSizer( wx.HORIZONTAL )
+        self.BoxSizer3 = wx.BoxSizer( wx.HORIZONTAL )
+        self.BoxSizer4 = wx.BoxSizer( wx.HORIZONTAL )
+        self.BoxSizer_hh = wx.BoxSizer( wx.VERTICAL   )
+
+        self.BoxSizer1.Add(self.MPL1  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer1.Add(self.MPL2  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer1.Add(self.MPL3  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer1.Add(self.MPL4  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer2.Add(self.MPL5  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer2.Add(self.MPL6  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer2.Add(self.MPL7  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer2.Add(self.MPL8  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer3.Add(self.MPL9  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer3.Add(self.MPL10 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer3.Add(self.MPL11 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer3.Add(self.MPL12 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer4.Add(self.MPL13 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer4.Add(self.MPL14 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer4.Add(self.MPL15 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer4.Add(self.MPL16 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+
+        self.BoxSizer_hh.Add(self.BoxSizer1, proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer_hh.Add(self.BoxSizer2, proportion = -1, border = 2, flag = wx.ALL| wx.EXPAND)
+        self.BoxSizer_hh.Add(self.BoxSizer3, proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
+        self.BoxSizer_hh.Add(self.BoxSizer4, proportion = -1, border = 2, flag = wx.ALL| wx.EXPAND)
 
 ###############################################################################
 ###  MPL2_Frame添加了MPL_Panel的两个实例
@@ -344,9 +423,9 @@ class MPL2_Frame(wx.Frame):
         self.BoxSizer2.Add(self.MPL4,proportion =-1, border = 2,flag = wx.ALL | wx.EXPAND)
 
         self.BoxSizerAll=wx.BoxSizer(wx.VERTICAL)
-        self.BoxSizerAll.Add(self.BoxSizer1,proportion=-1,border=2,flag=wx.ALL|wx.EXPAND)
-        self.BoxSizerAll.Add(self.BoxSizer2,proportion=-1,border=2,flag=wx.ALL|wx.EXPAND)
-        self.BoxSizer.Add(self.BoxSizerAll,proportion=-1,border=2,flag=wx.ALL|wx.EXPAND)
+        self.BoxSizerAll.Add(self.BoxSizer1 , proportion=-1 , border=2 , flag=wx.ALL | wx.EXPAND)
+        self.BoxSizerAll.Add(self.BoxSizer2 , proportion=-1 , border=2 , flag=wx.ALL | wx.EXPAND)
+        self.BoxSizer.Add(self.BoxSizerAll  , proportion=-1 , border=2 , flag=wx.ALL | wx.EXPAND)
         self.RightPanel = wx.Panel(self,-1)
         self.BoxSizer.Add(self.RightPanel,proportion =0, border = 2,flag = wx.ALL | wx.EXPAND)
 
