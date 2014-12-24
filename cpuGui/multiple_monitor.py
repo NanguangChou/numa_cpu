@@ -44,7 +44,7 @@ class MPL_Panel_base(wx.Panel):
         self.SubBoxSizer.Add(self.StaticText,proportion =-1, border = 2,flag = wx.ALL | wx.EXPAND)
 
         self.TopBoxSizer = wx.BoxSizer(wx.VERTICAL)
-        self.TopBoxSizer.Add(self.SubBoxSizer,proportion =-1, border = 2,flag = wx.ALL | wx.EXPAND)
+        self.TopBoxSizer.Add(self.SubBoxSizer, proportion = -1, border = 2,flag = wx.ALL | wx.EXPAND)
         self.TopBoxSizer.Add(self.FigureCanvas,proportion =-10, border = 2,flag = wx.ALL | wx.EXPAND)
 
         self.SetSizer(self.TopBoxSizer)
@@ -191,7 +191,7 @@ class MPL_Panel(MPL_Panel_base):
 ###############################################################################
 class MPL_Frame(wx.Frame):
     """MPL_Frame可以继承,并可修改,或者直接使用"""
-    def __init__(self,title="Numa CPU Monitor",size=(1400,980)):
+    def __init__(self,title="Numa CPU Monitor",size=(1200,960)):
         wx.Frame.__init__(self,parent=None,title = title,size=size)
 
         self.BoxSizer=wx.BoxSizer(wx.HORIZONTAL)
@@ -243,18 +243,18 @@ class MPL_Frame(wx.Frame):
         self.port_ctl  = wx.TextCtrl(self.RightPanel,-1,"9876",size=(100,-1))
         
         #加入Sizer中
-        self.FlexGridSizer.Add(self.Button1,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
-        self.FlexGridSizer.Add(self.Button2,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
+        self.FlexGridSizer.Add(self.Button1, proportion =   0, border = 5,flag = wx.ALL | wx.EXPAND)
+        self.FlexGridSizer.Add(self.Button2, proportion =   0, border = 5,flag = wx.ALL | wx.EXPAND)
 
-        self.FlexGridSizer.Add(self.ip_text,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
-        self.FlexGridSizer.Add(self.ip_ctl,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
-        self.FlexGridSizer.Add(self.port_text,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
-        self.FlexGridSizer.Add(self.port_ctl,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
+        self.FlexGridSizer.Add(self.ip_text,   proportion = 0, border = 5,flag = wx.ALL | wx.EXPAND)
+        self.FlexGridSizer.Add(self.ip_ctl,    proportion = 0, border = 5,flag = wx.ALL | wx.EXPAND)
+        self.FlexGridSizer.Add(self.port_text, proportion = 0, border = 5,flag = wx.ALL | wx.EXPAND)
+        self.FlexGridSizer.Add(self.port_ctl,  proportion = 0, border = 5,flag = wx.ALL | wx.EXPAND)
 
         
         #self.BoxSizer.Add(self.BoxSizerFigure,proportion = -1, border = 2,flag = wx.ALL | wx.EXPAND)
-        self.BoxSizer.Add(self.BoxSizer_hh,proportion = -1, border = 2,flag = wx.ALL | wx.EXPAND)
-        self.BoxSizer.Add(self.RightPanel,proportion = 0, border = 2,flag = wx.ALL | wx.EXPAND)
+        self.BoxSizer.Add(self.BoxSizer_hh, proportion = -1, border = 2,flag = wx.ALL | wx.EXPAND)
+        self.BoxSizer.Add(self.RightPanel,  proportion =  0, border = 2,flag = wx.ALL | wx.EXPAND)
         
         self.SetSizer(self.BoxSizer)
         self.RightPanel.SetSizer(self.FlexGridSizer)	
