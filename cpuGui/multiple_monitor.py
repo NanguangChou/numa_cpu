@@ -262,11 +262,30 @@ class MPL_Frame(wx.Frame):
         #连接判断
         self.start_button_click = False
         self.stop_button_click  = False
-        self.time_id=wx.NewId()
+
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER,self.draw_canvas,self.timer)
+        
+        '''self.time_id=wx.NewId()
         
         wx.EVT_TIMER(self.MPL1, self.time_id, self.draw_canvas)
-        self.t = wx.Timer(self.MPL1,self.time_id)
-
+        self.t_1 = wx.Timer(self.MPL1,self.time_id)
+        self.t_2 = wx.Timer(self.MPL2,self.time_id)
+        self.t_3 = wx.Timer(self.MPL3,self.time_id)
+        self.t_4 = wx.Timer(self.MPL4,self.time_id)
+        self.t_5 = wx.Timer(self.MPL5,self.time_id)
+        self.t_6 = wx.Timer(self.MPL6,self.time_id)
+        self.t_7 = wx.Timer(self.MPL7,self.time_id)
+        self.t_8 = wx.Timer(self.MPL8,self.time_id)
+        self.t_9 = wx.Timer(self.MPL9,self.time_id)
+        self.t_10 = wx.Timer(self.MPL10,self.time_id)
+        self.t_11 = wx.Timer(self.MPL11,self.time_id)
+        self.t_12 = wx.Timer(self.MPL12,self.time_id)
+        self.t_13 = wx.Timer(self.MPL13,self.time_id)
+        self.t_14 = wx.Timer(self.MPL14,self.time_id)
+        self.t_15 = wx.Timer(self.MPL15,self.time_id)
+        self.t_16 = wx.Timer(self.MPL16,self.time_id)
+        '''
         #状态栏
         self.StatusBar()
 
@@ -282,14 +301,31 @@ class MPL_Frame(wx.Frame):
             #if self.socket_data <0:
             #    return -1
             self.start_button_click = True
-            self.t.Start(50)
-            print self.t
-
-        self.MPL.cla()#必须清理图形,才能显示下一幅图
-        self.y = [None] * POINTS
+            self.t_1.Start(50)
+            self.t_2.Start(50)
+            self.t_3.Start(50)
+            self.t_4.Start(50)
+            self.t_5.Start(50)
+            self.t_6.Start(50)
+            self.t_7.Start(50)
+            self.t_8.Start(50)
+            self.t_9.Start(50)
+            self.t_10.Start(50)
+            self.t_11.Start(50)
+            self.t_12.Start(50)
+            self.t_13.Start(50)
+            self.t_14.Start(50)
+            self.t_15.Start(50)
+            self.t_16.Start(50)
+            print self.t_1
+        #清理初始化每个MPL对象
+        self.MPL1.cla()#必须清理图形,才能显示下一幅图
+        self.y=[None]*CPU_NUMBER
+        for i in range(CPU_NUMBER):
+            self.y[i] = [None] * POINTS
         #print self.y
-        self.l_user,=self.MPL.axes.plot(range(POINTS),self.y)
-        self.MPL.UpdatePlot()
+        #self.l_user_1,=self.MPL1.axes.plot(range(POINTS),self.y1)
+        #self.MPL1.UpdatePlot()
         #while self.start_button_click:
             #self.MPL.cla()
             
@@ -298,13 +334,50 @@ class MPL_Frame(wx.Frame):
             #self.MPL.UpdatePlot()#必须刷新才能显示
 
     def draw_canvas(self,evt):
-        self.MPL.FigureCanvas.restore_region(self.MPL.bg)
+        #self.MPL.FigureCanvas.restore_region(self.MPL.bg)
         #print "ok"
-        self.MPL.cla()
-        temp=math.log(self.socket_data.recvive())/LOG_FREQUENCE*100
+        #clear canvas
+        self.MPL1.cla()
+        self.MPL2.cla()
+        self.MPL3.cla()
+        self.MPL4.cla()
+        self.MPL5.cla()
+        self.MPL6.cla()
+        self.MPL7.cla()
+        self.MPL8.cla()
+        self.MPL9.cla()
+        self.MPL10.cla()
+        self.MPL11.cla()
+        self.MPL12.cla()
+        self.MPL13.cla()
+        self.MPL14.cla()
+        self.MPL15.cla()
+        self.MPL16.cla()
+
+        temp=[None]*CPU_NUMBER
+        for i in range(CPU_NUMBER):
+            temp[i]=math.log(self.socket_data.recvive())/LOG_FREQUENCE*100
+        #temp=math.log(self.socket_data.recvive())/LOG_FREQUENCE*100
         print temp
-        self.y = self.y[1:] +[temp]
-        self.MPL.plot(range(POINTS),self.y)
+        for j in range(CPU_NUMBER):
+            self.y[i]=self.y[i][1:]+[temp[i]]
+        #self.y[i] = self.y[1:] +[temp]
+        self.MPL1.plot(range(POINTS),self.y[1])
+        self.MPL2.plot(range(POINTS),self.y[2])
+        self.MPL3.plot(range(POINTS),self.y[3])
+        self.MPL4.plot(range(POINTS),self.y[4])
+        self.MPL5.plot(range(POINTS),self.y[5])
+        self.MPL6.plot(range(POINTS),self.y[6])
+        self.MPL7.plot(range(POINTS),self.y[7])
+        self.MPL8.plot(range(POINTS),self.y[8])
+        self.MPL9.plot(range(POINTS),self.y[9])
+        self.MPL10.plot(range(POINTS),self.y[10])
+        self.MPL11.plot(range(POINTS),self.y[11])
+        self.MPL12.plot(range(POINTS),self.y[12])
+        self.MPL13.plot(range(POINTS),self.y[13])
+        self.MPL14.plot(range(POINTS),self.y[14])
+        self.MPL15.plot(range(POINTS),self.y[15])
+        self.MPL16.plot(range(POINTS),self.y[16])
         #self.l_user.set_ydata(self.y)
         #self.l_user,=self.MPL.axes.plot(range(POINTS),self.y,"--^g")
         #self.MPL.axes.draw_artist(self.l_user)
@@ -313,7 +386,22 @@ class MPL_Frame(wx.Frame):
 
     def Button2Event(self,event):
         self.socket_data.__del__()
-        self.t.Stop()
+        self.t_1.Stop()
+        self.t_2.Stop()
+        self.t_3.Stop()
+        self.t_4.Stop()
+        self.t_5.Stop()
+        self.t_6.Stop()
+        self.t_7.Stop()
+        self.t_8.Stop()
+        self.t_9.Stop()
+        self.t_10.Stop()
+        self.t_11.Stop()
+        self.t_12.Stop()
+        self.t_13.Stop()
+        self.t_14.Stop()
+        self.t_15.Stop()
+        self.t_16.Stop()
         self.start_button_click=False
         self.AboutDialog()
 
