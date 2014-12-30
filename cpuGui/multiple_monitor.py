@@ -22,7 +22,7 @@ import math
 
 POINTS        = 100  
 CPU_NUMBER    = 8
-LOG_FREQUENCE = math.log(2.4*1024*1024*1024)
+LOG_FREQUENCE = math.log(2.4*1024*1024*1024,2)
 FREQUENCE     = 2.4*1024*1024*1024
 from pdb import set_trace
 ######################################################################################
@@ -255,7 +255,7 @@ class MPL_Frame(wx.Frame):
             #if self.socket_data <0:
             #    return -1
             self.start_button_click = True
-            self.timer.Start(80)
+            self.timer.Start(100)
 
             #print self.t_1
         #清理初始化每个MPL对象
@@ -298,7 +298,7 @@ class MPL_Frame(wx.Frame):
 
         temp=[None]*CPU_NUMBER
         for i in range(CPU_NUMBER):
-            #temp[i]=math.log(self.socket_data.recvive())/LOG_FREQUENCE*100
+            #temp[i]=math.log(self.socket_data.recvive(),2)/LOG_FREQUENCE*100
             temp[i] = (self.socket_data.recvive())/FREQUENCE*100
         #print temp
         for j in range(CPU_NUMBER):
