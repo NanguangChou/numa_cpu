@@ -22,7 +22,7 @@ import math
 
 POINTS = 100  
 
-LOG_FREQUENCE = (2.4*1024*1024*1024)
+LOG_FREQUENCE = math.log(2.4*1024*1024*1024,2)
 
 ######################################################################################
 class MPL_Panel_base(wx.Panel):
@@ -271,7 +271,7 @@ class MPL_Frame(wx.Frame):
         self.MPL.FigureCanvas.restore_region(self.MPL.bg)
         #print "ok"
         self.MPL.cla()
-        temp=(self.socket_data.recvive())/LOG_FREQUENCE*100
+        temp=(math.log(self.socket_data.recvive(),2))/LOG_FREQUENCE*100
         print temp
         self.y = self.y[1:] +[temp]
         self.MPL.plot(range(POINTS),self.y)

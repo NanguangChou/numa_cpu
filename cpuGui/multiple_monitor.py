@@ -21,9 +21,10 @@ from matplotlib import pyplot
 import math
 
 POINTS        = 100  
-CPU_NUMBER    = 4
+CPU_NUMBER    = 8
 LOG_FREQUENCE = math.log(2.4*1024*1024*1024)
-
+FREQUENCE     = 2.4*1024*1024*1024
+from pdb import set_trace
 ######################################################################################
 
 class MPL_Panel_base(wx.Panel):
@@ -59,17 +60,17 @@ class MPL_Panel_base(wx.Panel):
         
         self.bg = self.FigureCanvas.copy_from_bbox(self.axes.bbox)
         #self.xticker()
-        self.axes.set_autoscale_on(True)
+        #self.axes.set_autoscale_on(True)
         
         self.xlim(0,POINTS)
         self.ylim(0,100)
 
     def UpdatePlot(self):
         '''#修改图形的任何属性后都必须使用self.UpdatePlot()更新GUI界面 '''
-        #self.grid(True)
+        self.grid(True)
 
-        #self.xlim(0,POINTS)
-        #self.ylim(0,100)
+        self.xlim(0,POINTS)
+        self.ylim(0,100)
         self.FigureCanvas.draw()
 
 
@@ -160,38 +161,12 @@ class MPL_Panel_base(wx.Panel):
         ''' #可以用它来显示一些帮助信息,如鼠标位置等 '''
         self.StaticText.SetLabel(HelpString)
 
-################################################################
-
-class MPL_Panel(MPL_Panel_base):
-    ''' #MPL_Panel重要面板,可以继承或者创建实例 '''
-    def __init__(self,parent):
-        MPL_Panel_base.__init__(self,parent=parent)
-
-        #测试一下
-        self.FirstPlot()
-
-
-    #仅仅用于测试和初始化,意义不大
-    def FirstPlot(self):
-        #self.rc('lines',lw=5,c='r')
-        self.cla()
-        x = np.arange(-5,5,0.25)
-        y = np.sin(x)
-        self.yticker(0.5,0.1)
-        self.xticker(1.0,0.2)
-        self.xlabel('X')
-        self.ylabel('Y')
-        self.title_MPL("wxMatPlotLib Example In wxPython")
-        self.grid()
-        self.plot(x,y,'--^g')
-
-
 ###############################################################################
 #  MPL_Frame添加了MPL_Panel的1个实例
 ###############################################################################
 class MPL_Frame(wx.Frame):
     """MPL_Frame可以继承,并可修改,或者直接使用"""
-    def __init__(self,title="Numa CPU Monitor",size=(1200,960)):
+    def __init__(self,title="Numa CPU Monitor",size=(1300,760)):
         wx.Frame.__init__(self,parent=None,title = title,size=size)
 
         self.BoxSizer=wx.BoxSizer(wx.HORIZONTAL)
@@ -221,7 +196,7 @@ class MPL_Frame(wx.Frame):
             self.BoxSizerFigure.Add(self.BoxSizerHorizon[n])        
 
         '''
-        self.draw_16_axes()
+        self.draw_8_axes()
         
         #创建FlexGridSizer
         self.FlexGridSizer=wx.FlexGridSizer( rows=9, cols=1, vgap=5,hgap=5)
@@ -265,27 +240,6 @@ class MPL_Frame(wx.Frame):
 
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER,self.draw_canvas,self.timer)
-        
-        '''self.time_id=wx.NewId()
-        
-        wx.EVT_TIMER(self.MPL1, self.time_id, self.draw_canvas)
-        self.t_1 = wx.Timer(self.MPL1,self.time_id)
-        self.t_2 = wx.Timer(self.MPL2,self.time_id)
-        self.t_3 = wx.Timer(self.MPL3,self.time_id)
-        self.t_4 = wx.Timer(self.MPL4,self.time_id)
-        self.t_5 = wx.Timer(self.MPL5,self.time_id)
-        self.t_6 = wx.Timer(self.MPL6,self.time_id)
-        self.t_7 = wx.Timer(self.MPL7,self.time_id)
-        self.t_8 = wx.Timer(self.MPL8,self.time_id)
-        self.t_9 = wx.Timer(self.MPL9,self.time_id)
-        self.t_10 = wx.Timer(self.MPL10,self.time_id)
-        self.t_11 = wx.Timer(self.MPL11,self.time_id)
-        self.t_12 = wx.Timer(self.MPL12,self.time_id)
-        self.t_13 = wx.Timer(self.MPL13,self.time_id)
-        self.t_14 = wx.Timer(self.MPL14,self.time_id)
-        self.t_15 = wx.Timer(self.MPL15,self.time_id)
-        self.t_16 = wx.Timer(self.MPL16,self.time_id)
-        '''
         #状态栏
         self.StatusBar()
 
@@ -301,25 +255,11 @@ class MPL_Frame(wx.Frame):
             #if self.socket_data <0:
             #    return -1
             self.start_button_click = True
-            self.t_1.Start(50)
-            self.t_2.Start(50)
-            self.t_3.Start(50)
-            self.t_4.Start(50)
-            self.t_5.Start(50)
-            self.t_6.Start(50)
-            self.t_7.Start(50)
-            self.t_8.Start(50)
-            self.t_9.Start(50)
-            self.t_10.Start(50)
-            self.t_11.Start(50)
-            self.t_12.Start(50)
-            self.t_13.Start(50)
-            self.t_14.Start(50)
-            self.t_15.Start(50)
-            self.t_16.Start(50)
-            print self.t_1
+            self.timer.Start(80)
+
+            #print self.t_1
         #清理初始化每个MPL对象
-        self.MPL1.cla()#必须清理图形,才能显示下一幅图
+        #self.MPL1.cla()#必须清理图形,才能显示下一幅图
         self.y=[None]*CPU_NUMBER
         for i in range(CPU_NUMBER):
             self.y[i] = [None] * POINTS
@@ -345,6 +285,7 @@ class MPL_Frame(wx.Frame):
         self.MPL6.cla()
         self.MPL7.cla()
         self.MPL8.cla()
+        '''
         self.MPL9.cla()
         self.MPL10.cla()
         self.MPL11.cla()
@@ -353,23 +294,28 @@ class MPL_Frame(wx.Frame):
         self.MPL14.cla()
         self.MPL15.cla()
         self.MPL16.cla()
+        '''
 
         temp=[None]*CPU_NUMBER
         for i in range(CPU_NUMBER):
-            temp[i]=math.log(self.socket_data.recvive())/LOG_FREQUENCE*100
-        #temp=math.log(self.socket_data.recvive())/LOG_FREQUENCE*100
-        print temp
+            #temp[i]=math.log(self.socket_data.recvive())/LOG_FREQUENCE*100
+            temp[i] = (self.socket_data.recvive())/FREQUENCE*100
+        #print temp
         for j in range(CPU_NUMBER):
-            self.y[i]=self.y[i][1:]+[temp[i]]
+            self.y[j]=self.y[j][1:]+[temp[j]]
+            print self.y[j]
+            #set_trace()
         #self.y[i] = self.y[1:] +[temp]
-        self.MPL1.plot(range(POINTS),self.y[1])
-        self.MPL2.plot(range(POINTS),self.y[2])
-        self.MPL3.plot(range(POINTS),self.y[3])
-        self.MPL4.plot(range(POINTS),self.y[4])
-        self.MPL5.plot(range(POINTS),self.y[5])
-        self.MPL6.plot(range(POINTS),self.y[6])
-        self.MPL7.plot(range(POINTS),self.y[7])
-        self.MPL8.plot(range(POINTS),self.y[8])
+        self.MPL1.plot(range(POINTS),self.y[0])
+        self.MPL2.plot(range(POINTS),self.y[1])
+        self.MPL3.plot(range(POINTS),self.y[2])
+        self.MPL4.plot(range(POINTS),self.y[3])
+        self.MPL5.plot(range(POINTS),self.y[4])
+        self.MPL6.plot(range(POINTS),self.y[5])
+        self.MPL7.plot(range(POINTS),self.y[6])
+        self.MPL8.plot(range(POINTS),self.y[7])
+
+        '''
         self.MPL9.plot(range(POINTS),self.y[9])
         self.MPL10.plot(range(POINTS),self.y[10])
         self.MPL11.plot(range(POINTS),self.y[11])
@@ -378,6 +324,7 @@ class MPL_Frame(wx.Frame):
         self.MPL14.plot(range(POINTS),self.y[14])
         self.MPL15.plot(range(POINTS),self.y[15])
         self.MPL16.plot(range(POINTS),self.y[16])
+        '''
         #self.l_user.set_ydata(self.y)
         #self.l_user,=self.MPL.axes.plot(range(POINTS),self.y,"--^g")
         #self.MPL.axes.draw_artist(self.l_user)
@@ -386,22 +333,7 @@ class MPL_Frame(wx.Frame):
 
     def Button2Event(self,event):
         self.socket_data.__del__()
-        self.t_1.Stop()
-        self.t_2.Stop()
-        self.t_3.Stop()
-        self.t_4.Stop()
-        self.t_5.Stop()
-        self.t_6.Stop()
-        self.t_7.Stop()
-        self.t_8.Stop()
-        self.t_9.Stop()
-        self.t_10.Stop()
-        self.t_11.Stop()
-        self.t_12.Stop()
-        self.t_13.Stop()
-        self.t_14.Stop()
-        self.t_15.Stop()
-        self.t_16.Stop()
+        self.timer.Stop()
         self.start_button_click=False
         self.AboutDialog()
 
@@ -435,10 +367,10 @@ class MPL_Frame(wx.Frame):
     def AboutDialog(self):
         dlg = wx.MessageDialog(self, '\tPackages Used, Stop Ok', wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
-        dlg.Destroy()\
+        dlg.Destroy()
 
-    #生成16个监控图像
-    def draw_16_axes(self):
+    #生成8个监控图像
+    def draw_8_axes(self):
         self.MPL1 = MPL_Panel_base(self)
         self.MPL2 = MPL_Panel_base(self)
         self.MPL3 = MPL_Panel_base(self)
@@ -447,22 +379,9 @@ class MPL_Frame(wx.Frame):
         self.MPL6 = MPL_Panel_base(self)
         self.MPL7 = MPL_Panel_base(self)
         self.MPL8 = MPL_Panel_base(self)
-        self.MPL9 = MPL_Panel_base(self)
-        self.MPL10 = MPL_Panel_base(self)
-        self.MPL11 = MPL_Panel_base(self)
-        self.MPL12 = MPL_Panel_base(self)
-        self.MPL13 = MPL_Panel_base(self)
-        self.MPL14 = MPL_Panel_base(self)
-        self.MPL15 = MPL_Panel_base(self)
-        self.MPL16 = MPL_Panel_base(self)
-
-        ##加入sizer
         self.BoxSizer1 = wx.BoxSizer( wx.HORIZONTAL )
         self.BoxSizer2 = wx.BoxSizer( wx.HORIZONTAL )
-        self.BoxSizer3 = wx.BoxSizer( wx.HORIZONTAL )
-        self.BoxSizer4 = wx.BoxSizer( wx.HORIZONTAL )
-        self.BoxSizer_hh = wx.BoxSizer( wx.VERTICAL   )
-
+        self.BoxSizer_hh = wx.BoxSizer( wx.VERTICAL )
         self.BoxSizer1.Add(self.MPL1  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
         self.BoxSizer1.Add(self.MPL2  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
         self.BoxSizer1.Add(self.MPL3  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
@@ -471,122 +390,8 @@ class MPL_Frame(wx.Frame):
         self.BoxSizer2.Add(self.MPL6  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
         self.BoxSizer2.Add(self.MPL7  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
         self.BoxSizer2.Add(self.MPL8  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
-        self.BoxSizer3.Add(self.MPL9  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
-        self.BoxSizer3.Add(self.MPL10 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
-        self.BoxSizer3.Add(self.MPL11 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
-        self.BoxSizer3.Add(self.MPL12 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
-        self.BoxSizer4.Add(self.MPL13 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
-        self.BoxSizer4.Add(self.MPL14 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
-        self.BoxSizer4.Add(self.MPL15 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
-        self.BoxSizer4.Add(self.MPL16 ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
-
         self.BoxSizer_hh.Add(self.BoxSizer1, proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
         self.BoxSizer_hh.Add(self.BoxSizer2, proportion = -1, border = 2, flag = wx.ALL| wx.EXPAND)
-        self.BoxSizer_hh.Add(self.BoxSizer3, proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
-        self.BoxSizer_hh.Add(self.BoxSizer4, proportion = -1, border = 2, flag = wx.ALL| wx.EXPAND)
-
-###############################################################################
-###  MPL2_Frame添加了MPL_Panel的两个实例
-###############################################################################
-class MPL2_Frame(wx.Frame):
-    """MPL2_Frame可以继承,并可修改,或者直接使用"""
-    def __init__(self,title="MPL2_Frame Example In wxPython",size=(850,500)):
-        wx.Frame.__init__(self,parent=None,title = title,size=size)
-
-
-        self.BoxSizer=wx.BoxSizer(wx.HORIZONTAL)
-        self.BoxSizer1=wx.BoxSizer(wx.HORIZONTAL)
-        self.BoxSizer2=wx.BoxSizer(wx.HORIZONTAL)
-
-        self.MPL1 = MPL_Panel_base(self)
-        self.BoxSizer1.Add(self.MPL1,proportion =-1, border = 2,flag = wx.ALL | wx.EXPAND)
-
-        self.MPL2 = MPL_Panel_base(self)
-        self.BoxSizer1.Add(self.MPL2,proportion =-1, border = 2,flag = wx.ALL | wx.EXPAND)
-        
-        self.MPL3 = MPL_Panel_base(self)
-        self.BoxSizer2.Add(self.MPL3,proportion =-1, border = 2,flag = wx.ALL | wx.EXPAND)
-
-        self.MPL4 = MPL_Panel_base(self)
-        self.BoxSizer2.Add(self.MPL4,proportion =-1, border = 2,flag = wx.ALL | wx.EXPAND)
-
-        self.BoxSizerAll=wx.BoxSizer(wx.VERTICAL)
-        self.BoxSizerAll.Add(self.BoxSizer1 , proportion=-1 , border=2 , flag=wx.ALL | wx.EXPAND)
-        self.BoxSizerAll.Add(self.BoxSizer2 , proportion=-1 , border=2 , flag=wx.ALL | wx.EXPAND)
-        self.BoxSizer.Add(self.BoxSizerAll  , proportion=-1 , border=2 , flag=wx.ALL | wx.EXPAND)
-        self.RightPanel = wx.Panel(self,-1)
-        self.BoxSizer.Add(self.RightPanel,proportion =0, border = 2,flag = wx.ALL | wx.EXPAND)
-
-        self.SetSizer(self.BoxSizer)
-
-        #创建FlexGridSizer
-        self.FlexGridSizer=wx.FlexGridSizer( rows=9, cols=1, vgap=5,hgap=5)
-        self.FlexGridSizer.SetFlexibleDirection(wx.BOTH)
-
-        #测试按钮1
-        self.Button1 = wx.Button(self.RightPanel,-1,"TestButton",size=(100,40),pos=(10,10))
-        self.Button1.Bind(wx.EVT_BUTTON,self.Button1Event)
-
-        #测试按钮2
-        self.Button2 = wx.Button(self.RightPanel,-1,"AboutButton",size=(100,40),pos=(10,10))
-        self.Button2.Bind(wx.EVT_BUTTON,self.Button2Event)
-
-        #加入Sizer中
-        self.FlexGridSizer.Add(self.Button1,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
-        self.FlexGridSizer.Add(self.Button2,proportion =0, border = 5,flag = wx.ALL | wx.EXPAND)
-
-        self.RightPanel.SetSizer(self.FlexGridSizer)
-
-        #状态栏
-        self.StatusBar()
-
-
-        #MPL2_Frame界面居中显示
-        self.Centre(wx.BOTH)
-
-
-
-    #按钮事件,用于测试
-    def Button1Event(self,event):
-        self.MPL1.cla()#必须清理图形,才能显示下一幅图
-        x=np.arange(-5,5,0.2)
-        y=np.cos(x)
-        self.MPL1.plot(x,y,'--*g')
-        self.MPL1.xticker(2.0,1.0)
-        self.MPL1.yticker(0.5,0.1)
-        self.MPL1.title_MPL("Numa Cpu Usage")
-        self.MPL1.ShowHelpString("You Can Show MPL1 Helpful String Here !")
-        self.MPL1.grid()
-        self.MPL1.UpdatePlot()#必须刷新才能显示
-
-        self.MPL2.cla()
-        self.MPL2.plot(x,np.sin(x),':^b')
-        self.MPL2.xticker(1.0,0.5)
-        self.MPL2.yticker(0.2,0.1)
-        self.MPL2.title_MPL("MPL2")
-        self.MPL2.grid()
-        self.MPL2.UpdatePlot()
-
-    def Button2Event(self,event):
-        self.AboutDialog()
-
-
-
-    #自动创建状态栏
-    def StatusBar(self):
-        self.statusbar = self.CreateStatusBar()
-        self.statusbar.SetFieldsCount(3)
-        self.statusbar.SetStatusWidths([-2, -2, -1])
-
-
-    #About对话框
-    def AboutDialog(self):
-        dlg = wx.MessageDialog(self, '\tStop Ok', wx.OK | wx.ICON_INFORMATION)
-        dlg.ShowModal()
-        dlg.Destroy()
-
-
-
 
 ########################################################################
 

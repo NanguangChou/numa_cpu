@@ -5,10 +5,10 @@ from struct import pack
 from pdb import set_trace
 from numpy import zeros
 class socket_data():
-	def __init__(self,ip="192.168.150.46",port=9873):
+	def __init__(self,ip="192.168.150.46",port=9876):
 		self.s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 		self.s.connect((ip,port))
-		number    = 2
+		number    = 8
 		event_num = pack("!L",number)
 		data      = pack("!L",1 ) #usr和os的值都是1
 		cpuid     = pack("!L",1 )
@@ -51,6 +51,9 @@ class socket_data():
 	def __del__(self):
 		self.s.close()
 
+###################
+###测试用#########
+##################
 if __name__=="__main__":
 	socket_test = socket_data()
 	temp = zeros(2)
