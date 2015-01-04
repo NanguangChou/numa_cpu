@@ -22,6 +22,7 @@ import math
 
 POINTS        = 100  
 CPU_NUMBER    = 8
+EVT_NUM       = 4
 LOG_FREQUENCE = math.log(2.4*1024*1024*1024,2)
 FREQUENCE     = 2.4*1024*1024*1024
 from pdb import set_trace
@@ -41,7 +42,7 @@ class MPL_Panel_base(wx.Panel):
         self.StaticText = wx.StaticText(self,-1,label='Show Help String')
 
         self.SubBoxSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.SubBoxSizer.Add(self.NavigationToolbar,proportion =0, border = 2,flag = wx.ALL | wx.EXPAND)
+        #self.SubBoxSizer.Add(self.NavigationToolbar,proportion =0, border = 2,flag = wx.ALL | wx.EXPAND)
         self.SubBoxSizer.Add(self.StaticText,proportion =-1, border = 2,flag = wx.ALL | wx.EXPAND)
 
         self.TopBoxSizer = wx.BoxSizer(wx.VERTICAL)
@@ -196,6 +197,7 @@ class MPL_Frame(wx.Frame):
             self.BoxSizerFigure.Add(self.BoxSizerHorizon[n])        
 
         '''
+        self.BoxSizer_hh = wx.BoxSizer( wx.VERTICAL )
         self.draw_8_axes()
         
         #创建FlexGridSizer
@@ -205,8 +207,11 @@ class MPL_Frame(wx.Frame):
         self.RightPanel = wx.Panel(self,-1)
 
         #测试按钮1
-        self.Button1 = wx.Button(self.RightPanel,-1,"TestButton",size=(100,40),pos=(10,10))
+        self.Button1 = wx.Button(self.RightPanel,-1,"CPU_status",size=(100,40),pos=(10,10))
         self.Button1.Bind(wx.EVT_BUTTON,self.Button1Event)
+        #内存
+        self.Button3 = wx.Button(self.RightPanel, -1, "Memory_status",size=(100,40),pos=(10,10))
+        self.Button3.Bind(wx.EVT_BUTTON,self.Button3Event)
 
         #测试按钮2
         self.Button2 = wx.Button(self.RightPanel,-1,"CloseButton",size=(100,40),pos=(10,10))
@@ -219,6 +224,7 @@ class MPL_Frame(wx.Frame):
         
         #加入Sizer中
         self.FlexGridSizer.Add(self.Button1, proportion =   0, border = 5,flag = wx.ALL | wx.EXPAND)
+        self.FlexGridSizer.Add(self.Button3, proportion =   0, border = 5,flag = wx.ALL | wx.EXPAND)
         self.FlexGridSizer.Add(self.Button2, proportion =   0, border = 5,flag = wx.ALL | wx.EXPAND)
 
         self.FlexGridSizer.Add(self.ip_text,   proportion = 0, border = 5,flag = wx.ALL | wx.EXPAND)
@@ -228,20 +234,24 @@ class MPL_Frame(wx.Frame):
 
         
         #self.BoxSizer.Add(self.BoxSizerFigure,proportion = -1, border = 2,flag = wx.ALL | wx.EXPAND)
-        self.BoxSizer.Add(self.BoxSizer_hh, proportion = -1, border = 2,flag = wx.ALL | wx.EXPAND)
+
         self.BoxSizer.Add(self.RightPanel,  proportion =  0, border = 2,flag = wx.ALL | wx.EXPAND)
+        self.BoxSizer.Add(self.BoxSizer_hh, proportion = -1, border = 2,flag = wx.ALL | wx.EXPAND)
         
         self.SetSizer(self.BoxSizer)
         self.RightPanel.SetSizer(self.FlexGridSizer)	
 
         #连接判断
         self.start_button_click = False
-        self.stop_button_click  = False
+        self.start_button_click_memory  = False
 
         self.timer = wx.Timer(self)
+        self.timer2 = wx.Timer(self)
+
         self.Bind(wx.EVT_TIMER,self.draw_canvas,self.timer)
+        self.Bind(wx.EVT_TIMER,self.draw_canvas_memory,self.timer2)
         #状态栏
-        self.StatusBar()
+        #self.StatusBar()
 
         #MPL_Frame界面居中显示
         self.Centre(wx.BOTH)  
@@ -250,33 +260,32 @@ class MPL_Frame(wx.Frame):
     def Button1Event(self,event):
         #socket获取服务器数据
         #
+        self.clear_reset()
+        '''
+        self.BoxSizer.Remove(self.BoxSizer_hh)
+        self.BoxSizer_hh = wx.BoxSizer( wx.VERTICAL )
+        self.draw_8_axes()
+        self.BoxSizer.Add(self.BoxSizer_hh, proportion= -1,border=2,flag=wx.ALL | wx.EXPAND)
+        self.SetSizer(self.BoxSizer)
+        '''
         if not self.start_button_click:
             self.socket_data=socket_data(ip=self.ip_ctl.GetValue(),port=int(self.port_ctl.GetValue()))
             #if self.socket_data <0:
             #    return -1
             self.start_button_click = True
             self.timer.Start(100)
-
-            #print self.t_1
+        self.SetTitle("numa cpu monitor")
         #清理初始化每个MPL对象
         #self.MPL1.cla()#必须清理图形,才能显示下一幅图
         self.y=[None]*CPU_NUMBER
         for i in range(CPU_NUMBER):
             self.y[i] = [None] * POINTS
-        #print self.y
-        #self.l_user_1,=self.MPL1.axes.plot(range(POINTS),self.y1)
-        #self.MPL1.UpdatePlot()
-        #while self.start_button_click:
-            #self.MPL.cla()
-            
-            
-            #time.sleep(1)
-            #self.MPL.UpdatePlot()#必须刷新才能显示
 
     def draw_canvas(self,evt):
         #self.MPL.FigureCanvas.restore_region(self.MPL.bg)
         #print "ok"
         #clear canvas
+        #for i in range()
         self.MPL1.cla()
         self.MPL2.cla()
         self.MPL3.cla()
@@ -285,17 +294,6 @@ class MPL_Frame(wx.Frame):
         self.MPL6.cla()
         self.MPL7.cla()
         self.MPL8.cla()
-        '''
-        self.MPL9.cla()
-        self.MPL10.cla()
-        self.MPL11.cla()
-        self.MPL12.cla()
-        self.MPL13.cla()
-        self.MPL14.cla()
-        self.MPL15.cla()
-        self.MPL16.cla()
-        '''
-
         temp=[None]*CPU_NUMBER
         for i in range(CPU_NUMBER):
             #temp[i]=math.log(self.socket_data.recvive(),2)/LOG_FREQUENCE*100
@@ -314,28 +312,76 @@ class MPL_Frame(wx.Frame):
         self.MPL6.plot(range(POINTS),self.y[5])
         self.MPL7.plot(range(POINTS),self.y[6])
         self.MPL8.plot(range(POINTS),self.y[7])
-
-        '''
-        self.MPL9.plot(range(POINTS),self.y[9])
-        self.MPL10.plot(range(POINTS),self.y[10])
-        self.MPL11.plot(range(POINTS),self.y[11])
-        self.MPL12.plot(range(POINTS),self.y[12])
-        self.MPL13.plot(range(POINTS),self.y[13])
-        self.MPL14.plot(range(POINTS),self.y[14])
-        self.MPL15.plot(range(POINTS),self.y[15])
-        self.MPL16.plot(range(POINTS),self.y[16])
-        '''
         #self.l_user.set_ydata(self.y)
         #self.l_user,=self.MPL.axes.plot(range(POINTS),self.y,"--^g")
         #self.MPL.axes.draw_artist(self.l_user)
         #self.MPL.UpdatePlot()
         #self.MPL.FigureCanvas.blit(self.MPL.axes.bbox)
 
+    def draw_canvas_memory(self,ect):
+        self.MPL1.cla()
+        self.MPL2.cla()
+        self.MPL3.cla()
+        self.MPL4.cla()
+        self.MPL5.cla()
+        self.MPL6.cla()
+        self.MPL7.cla()
+        self.MPL8.cla()
+        temp=[None]*(EVT_NUM)
+        for i in range(EVT_NUM):
+            #temp[i]=math.log(self.socket_data.recvive(),2)/LOG_FREQUENCE*100
+            temp[i] = (self.socket_data.recvive())*64/100000
+        #print temp
+        for j in range(EVT_NUM):
+            self.y[j]=self.y[j][1:]+[temp[j]]
+            print self.y[j]
+            #set_trace()
+        self.y[EVT_NUM]=self.y[EVT_NUM][1:]+[temp[0]+temp[1]]
+        self.y[EVT_NUM+1] = self.y[EVT_NUM][1:]+[temp[2]+temp[3]]
+        #self.y[i] = self.y[1:] +[temp]
+        self.MPL1.plot(range(POINTS),self.y[0])
+        self.MPL2.plot(range(POINTS),self.y[1])
+        self.MPL3.plot(range(POINTS),self.y[4])
+        #self.MPL4.plot(range(POINTS),self.y[3])
+        self.MPL5.plot(range(POINTS),self.y[2])
+        self.MPL6.plot(range(POINTS),self.y[3])
+        self.MPL7.plot(range(POINTS),self.y[5])
+        #self.MPL8.plot(range(POINTS),self.y[7])
+        pass
+
     def Button2Event(self,event):
         self.socket_data.__del__()
-        self.timer.Stop()
-        self.start_button_click=False
+        if self.start_button_click:
+            self.timer.Stop()
+            self.start_button_click=False
+        if self.start_button_click_memory:
+            self.timer2.Stop()
+            self.start_button_click_memory=False
+
         self.AboutDialog()
+
+    def clear_reset(self):
+        self.socket_data=None
+        if self.start_button_click:
+            self.timer.Stop()
+            self.start_button_click=False
+        if self.start_button_click_memory:
+            self.timer2.Stop()
+            self.start_button_click_memory=False
+
+    def Button3Event(self,event):
+        self.clear_reset()
+        if not self.start_button_click_memory:
+            self.socket_data = socket_data(ip=self.ip_ctl.GetValue(),port=int(self.port_ctl.GetValue()),type=2)
+            self.start_button_click_memory=True
+            self.timer2.Start(100)
+        self.SetTitle("memory monitor")
+        #清理初始化每个MPL对象
+        #self.MPL1.cla()#必须清理图形,才能显示下一幅图
+        self.y=[None]*(EVT_NUM+2)
+        for i in range(EVT_NUM+2):
+            self.y[i] = [None] * POINTS
+        pass
 
 
     #打开文件,用于测试
@@ -365,7 +411,7 @@ class MPL_Frame(wx.Frame):
 
     #About对话框
     def AboutDialog(self):
-        dlg = wx.MessageDialog(self, '\tPackages Used, Stop Ok', wx.OK | wx.ICON_INFORMATION)
+        dlg = wx.MessageDialog(self, '  Packages Used, Stop Ok', wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
 
@@ -381,7 +427,6 @@ class MPL_Frame(wx.Frame):
         self.MPL8 = MPL_Panel_base(self)
         self.BoxSizer1 = wx.BoxSizer( wx.HORIZONTAL )
         self.BoxSizer2 = wx.BoxSizer( wx.HORIZONTAL )
-        self.BoxSizer_hh = wx.BoxSizer( wx.VERTICAL )
         self.BoxSizer1.Add(self.MPL1  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
         self.BoxSizer1.Add(self.MPL2  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
         self.BoxSizer1.Add(self.MPL3  ,proportion = -1, border = 2, flag = wx.ALL|wx.EXPAND)
